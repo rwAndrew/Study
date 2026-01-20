@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>極速學期成績計算</title>
+    <title>學期成績計算 (四捨五入版)</title>
     <style>
         :root {
             --bg: #f3f4f6;
@@ -39,7 +39,7 @@
             gap: 20px;
         }
 
-        /* 成績顯示卡片 - 置頂且顯眼 */
+        /* 結果卡片 */
         .result-card {
             background: var(--card-bg);
             padding: 24px;
@@ -52,12 +52,25 @@
             z-index: 10;
         }
 
-        .score-display {
-            font-size: 4rem;
+        .score-row {
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+            gap: 15px;
+            margin: 10px 0;
+        }
+
+        .main-score {
+            font-size: 4.5rem;
             font-weight: 800;
             line-height: 1;
-            margin: 10px 0;
-            font-variant-numeric: tabular-nums; /* 防止數字變動時跳動 */
+            font-variant-numeric: tabular-nums;
+        }
+
+        .sub-score {
+            font-size: 1.2rem;
+            color: var(--text-sub);
+            font-weight: 500;
         }
 
         .status-badge {
@@ -69,7 +82,7 @@
             margin-top: 5px;
         }
 
-        /* 輸入區域網格 */
+        /* 輸入區域 */
         .input-section {
             background: var(--card-bg);
             padding: 20px;
@@ -124,11 +137,6 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        input::placeholder {
-            color: #d1d5db;
-            font-weight: 400;
-        }
-
         label {
             display: block;
             text-align: center;
@@ -137,117 +145,87 @@
             margin-top: 6px;
         }
 
-        /* 狀態樣式變化 */
+        /* 狀態樣式 */
         .state-pass { background-color: var(--pass-bg); color: var(--pass-text); }
         .state-makeup { background-color: var(--makeup-bg); color: var(--makeup-text); }
         .state-fail { background-color: var(--fail-bg); color: var(--fail-text); }
 
-        /* 隱藏 Chrome/Safari/Edge 的輸入框箭頭 */
+        /* 去除輸入框箭頭 */
         input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="result-card" class="result-card state-fail">
-        <div style="font-size: 0.9rem; opacity: 0.8;">學期總成績</div>
-        <div class="score-display" id="total-score">0.0</div>
+        <div style="font-size: 0.9rem; opacity: 0.8;">學期總成績 (四捨五入)</div>
+        
+        <div class="score-row">
+            <div class="main-score" id="final-integer">0</div>
+        </div>
+        
+        <div class="sub-score">原始: <span id="raw-decimal">0.0</span></div>
+
         <div class="status-badge" id="status-text">請輸入成績</div>
     </div>
 
     <div class="input-section">
-        <div class="section-header">
-            平時成績 (3項)
-            <span>40%</span>
-        </div>
+        <div class="section-header">平時成績 (40%)</div>
         <div class="grid-3">
-            <div class="input-wrapper">
-                <input type="number" class="score-input" data-type="daily" placeholder="0" inputmode="decimal">
-                <label>平時 1</label>
-            </div>
-            <div class="input-wrapper">
-                <input type="number" class="score-input" data-type="daily" placeholder="0" inputmode="decimal">
-                <label>平時 2</label>
-            </div>
-            <div class="input-wrapper">
-                <input type="number" class="score-input" data-type="daily" placeholder="0" inputmode="decimal">
-                <label>平時 3</label>
-            </div>
+            <div class="input-wrapper"><input type="number" class="score-input" data-type="daily" placeholder="0" inputmode="decimal"><label>平時 1</label></div>
+            <div class="input-wrapper"><input type="number" class="score-input" data-type="daily" placeholder="0" inputmode="decimal"><label>平時 2</label></div>
+            <div class="input-wrapper"><input type="number" class="score-input" data-type="daily" placeholder="0" inputmode="decimal"><label>平時 3</label></div>
         </div>
     </div>
 
     <div class="input-section">
-        <div class="section-header">
-            段考成績 (3項)
-            <span>60%</span>
-        </div>
+        <div class="section-header">段考成績 (60%)</div>
         <div class="grid-3">
-            <div class="input-wrapper">
-                <input type="number" class="score-input" data-type="exam" placeholder="0" inputmode="decimal">
-                <label>第一次</label>
-            </div>
-            <div class="input-wrapper">
-                <input type="number" class="score-input" data-type="exam" placeholder="0" inputmode="decimal">
-                <label>第二次</label>
-            </div>
-            <div class="input-wrapper">
-                <input type="number" class="score-input" data-type="exam" placeholder="0" inputmode="decimal">
-                <label>第三次</label>
-            </div>
+            <div class="input-wrapper"><input type="number" class="score-input" data-type="exam" placeholder="0" inputmode="decimal"><label>第一次</label></div>
+            <div class="input-wrapper"><input type="number" class="score-input" data-type="exam" placeholder="0" inputmode="decimal"><label>第二次</label></div>
+            <div class="input-wrapper"><input type="number" class="score-input" data-type="exam" placeholder="0" inputmode="decimal"><label>第三次</label></div>
         </div>
     </div>
 </div>
 
 <script>
-    // 選取所有輸入框
     const inputs = document.querySelectorAll('.score-input');
-    const totalScoreEl = document.getElementById('total-score');
+    const finalIntegerEl = document.getElementById('final-integer');
+    const rawDecimalEl = document.getElementById('raw-decimal');
     const statusTextEl = document.getElementById('status-text');
     const resultCard = document.getElementById('result-card');
 
     function calculate() {
-        let dailySum = 0;
-        let examSum = 0;
-        let dailyCount = 0;
-        let examCount = 0;
+        let dailySum = 0, examSum = 0;
 
-        // 遍歷所有輸入框進行加總
         inputs.forEach(input => {
             const val = parseFloat(input.value) || 0;
-            if (input.dataset.type === 'daily') {
-                dailySum += val;
-                dailyCount++;
-            } else {
-                examSum += val;
-                examCount++;
-            }
+            if (input.dataset.type === 'daily') dailySum += val;
+            else examSum += val;
         });
 
-        // 計算平均與權重
-        // 為了避免一開始就是 0，我們假設除數固定為 3 (因為有三欄)
+        // 計算原始分數
         const dailyAvg = dailySum / 3;
         const examAvg = examSum / 3;
-
-        const finalScore = (dailyAvg * 0.4) + (examAvg * 0.6);
+        const rawScore = (dailyAvg * 0.4) + (examAvg * 0.6);
         
+        // 關鍵邏輯：使用 Math.round 四捨五入到整數
+        const roundedScore = Math.round(rawScore);
+
         // 更新顯示
-        totalScoreEl.innerText = finalScore.toFixed(1);
+        rawDecimalEl.innerText = rawScore.toFixed(2); // 顯示到小數點後兩位，讓你確認 59.46 這種狀況
+        finalIntegerEl.innerText = roundedScore;
 
         // 移除舊狀態
         resultCard.classList.remove('state-pass', 'state-makeup', 'state-fail');
 
-        // 狀態判斷
-        if (finalScore >= 60) {
+        // 判定邏輯 (依照四捨五入後的整數)
+        if (roundedScore >= 60) {
             resultCard.classList.add('state-pass');
             statusTextEl.innerText = "歐帕 (Pass)";
-        } else if (finalScore < 30) {
+        } else if (roundedScore < 30) {
             resultCard.classList.add('state-fail');
             statusTextEl.innerText = "死當 (無法補考)";
         } else {
@@ -256,18 +234,11 @@
         }
     }
 
-    // 為每個輸入框添加事件
     inputs.forEach(input => {
-        // 輸入時即時計算
         input.addEventListener('input', calculate);
-        
-        // 點擊時自動全選 (方便修改)
-        input.addEventListener('focus', function() {
-            this.select();
-        });
+        input.addEventListener('focus', function() { this.select(); });
     });
 
-    // 初始化一次
     calculate();
 </script>
 
